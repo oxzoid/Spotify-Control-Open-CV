@@ -84,7 +84,7 @@ while True:
                     index_tip = hand1["lmList"][8]
                     distance = math.dist(thumb_tip, index_tip)
                     print(distance)
-                    threshold =60
+                    threshold =70
                     if distance>threshold:
                         volume = int((distance - 50) / 2)
                         volume = max(0, min(100, volume))
