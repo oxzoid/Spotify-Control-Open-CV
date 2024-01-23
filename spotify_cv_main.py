@@ -10,15 +10,19 @@ with open('params.json', 'r') as file:
 
 desired_fps = 10
 delay = int(1000 / desired_fps)
-auth_manager = SpotifyOAuth(client_id=config_data.get("CLIENT_ID"), client_secret=config_data.get("CLIENT_SECRET"), redirect_uri="http://localhost:3000", scope="user-read-playback-state user-modify-playback-state user-library-read app-remote-control user-read-private user-read-email playlist-read-private user-library-modify streaming user-read-recently-played")
+auth_manager = SpotifyOAuth(client_id=config_data.get("CLIENT_ID"), client_secret=config_data.get("CLIENT_SECRET"), redirect_uri="http://localhost:3000", scope="user-read-playback-state user-library-modify user-modify-playback-state user-library-read app-remote-control user-read-private user-read-email playlist-read-private user-library-modify streaming user-read-recently-played")
 
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
 cap = cv2.VideoCapture(0)
-detector = HandDetector(staticMode=False, maxHands=2, modelComplexity=1, detectionCon=0.5, minTrackCon=0.5)
+detector = HandDetector(staticMode=False, maxHands=2, modelComplexity=1, detectionCon=0.8, minTrackCon=0.5)
 
 finger_info_timer = time.time()
 finger_info_interval = 5 
+
+volume_control_active = False
+thumbs_up_detected = False
+pinch_threshold =40
 
 while True:
     try:
@@ -34,7 +38,7 @@ while True:
                     pos = detector.fingersUp(hand1)
                     print(f"Right Hand Finger Positions: {pos}")
 
-                    if pos == [0, 0, 0, 0, 0] or pos == [1, 0, 0, 0, 0]:
+                    if pos == [0, 0, 0, 0, 0] or [1,0,0,0,0]:    
                         sp.pause_playback()
                     elif pos == [1, 1, 1, 1, 1] or pos == [0, 1, 1, 1, 1]:
                         sp.start_playback()
@@ -46,19 +50,28 @@ while True:
                     
                     print(f"Pinch Distance: {distance}, Adjusted Volume: {volume}")
                     sp.volume(volume)
-            if len(hands) == 2:
-                hand2 = hands[1]  
-                if hand2["type"] == 'Left':
-                    pos2 = detector.fingersUp(hand2)
+            # if len(hands) == 2:
+            #     hand2 = hands[1]  
+                if hand1["type"] == 'Left':
+                    pos2 = detector.fingersUp(hand1)
                     print(f"Left Hand Finger Positions: {pos2}")
-
-                    if pos2 == [0, 0, 0, 0, 0] or pos2 == [1, 0, 0, 0, 0]:
+                    if pos2 == [0, 0, 0, 0, 0]:
                         sp.previous_track()
                     elif pos2 == [1, 1, 1, 1, 1] or pos2 == [0, 1, 1, 1, 1]:
                         sp.next_track()
+                    elif pos2==[1,0,0,0,0] or pos2==[1,0,0,0,1]or pos2==[0,0,0,0,1]:
+                        current_Track=sp.current_playback()
+                        if current_Track:
+                            track_id=current_Track['item']['id']
+                            sp.current_user_saved_tracks_add(tracks=[track_id])
+                            print(f"added current track to ur music library.\n")
+                    current_Track=sp.current_playback()
+                    print(f"\ncurrent song: {current_Track['item']['name']}\n")
             print(" ")
         cv2.imshow("Image", img)
         cv2.waitKey(1)
 
     except Exception as e:
         print(f"An error occurred: {e}")
+        
+
