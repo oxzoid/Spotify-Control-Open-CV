@@ -14,7 +14,7 @@ with open(".cache", "r") as f:
 
 print(f"Token expiration: {cached_token_info['expires_at']}")
 
-desired_fps = 10
+desired_fps = 30 
 delay = int(1000 / desired_fps)
 auth_manager = SpotifyOAuth(
     client_id=config_data.get("CLIENT_ID"),
@@ -31,7 +31,7 @@ detector = HandDetector(
 )
 
 finger_info_timer = time.time()
-finger_info_interval = 5
+finger_info_interval = 3
 
 while True:
     try:
@@ -83,11 +83,14 @@ while True:
                     thumb_tip = hand1["lmList"][4]
                     index_tip = hand1["lmList"][8]
                     distance = math.dist(thumb_tip, index_tip)
-                    volume = int((distance - 50) / 2)
-                    volume = max(0, min(100, volume))
+                    print(distance)
+                    threshold =60
+                    if distance>threshold:
+                        volume = int((distance - 50) / 2)
+                        volume = max(0, min(100, volume))
 
-                    print(f"Pinch Distance: {distance}, Adjusted Volume: {volume}")
-                    sp.volume(volume)
+                        print(f"Pinch Distance: {distance}, Adjusted Volume: {volume}")
+                        sp.volume(volume)
 
                 if hand1["type"] == "Left":
                     pos2 = detector.fingersUp(hand1)
@@ -114,7 +117,7 @@ while True:
                     )
 
             print(" ")
-        cv2.imshow("Image", img)
+        # cv2.imshow("Image", img)
         cv2.waitKey(1)
 
     except Exception as e:
