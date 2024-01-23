@@ -53,8 +53,7 @@ while True:
                     
                     print(f"Pinch Distance: {distance}, Adjusted Volume: {volume}")
                     sp.volume(volume)
-            # if len(hands) == 2:
-            #     hand2 = hands[1]  
+  
                 if hand1["type"] == 'Left':
                     pos2 = detector.fingersUp(hand1)
                     print(f"Left Hand Finger Positions: {pos2}")
