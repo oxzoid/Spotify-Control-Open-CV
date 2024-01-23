@@ -7,3 +7,5 @@ close right to pause
 
 open left hand to play next track
 close left hand to go to previous track
+
+thumbs up with left hand to like the current song and save to ur library 
