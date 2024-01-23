@@ -14,8 +14,6 @@ auth_manager = SpotifyOAuth(client_id=config_data.get("CLIENT_ID"), client_secre
 
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
-if auth_manager.is_token_expired(sp.auth_manager.get_access_token()):
-    sp.auth_manager.refresh_access_token(sp.auth_manager.get_access_token()["refresh_token"])
 
 cap = cv2.VideoCapture(0)
 detector = HandDetector(staticMode=False, maxHands=2, modelComplexity=1, detectionCon=0.8, minTrackCon=0.5)
@@ -28,6 +26,8 @@ thumbs_up_detected = False
 pinch_threshold =40
 
 while True:
+    if auth_manager.is_token_expired(sp.auth_manager.get_access_token()):
+        sp.auth_manager.refresh_access_token(sp.auth_manager.get_access_token()["refresh_token"])
     try:
         success, img = cap.read()
         hands, img = detector.findHands(img, draw=True, flipType=True)
